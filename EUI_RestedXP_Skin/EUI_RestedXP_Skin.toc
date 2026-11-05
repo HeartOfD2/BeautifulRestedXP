@@ -1,0 +1,11 @@
+## Interface: 16001
+## Title: EUI RestedXP Skin (settings for BeautifulRestedXP)
+## Title-deDE: EUI RestedXP Skin (Einstellungen für BeautifulRestedXP)
+## Notes: EUI RestedXP Skin is now called BeautifulRestedXP. This folder only keeps your old settings so BeautifulRestedXP can take them over; it does nothing else.
+## Notes-deDE: EUI RestedXP Skin heißt jetzt BeautifulRestedXP. Dieser Ordner hält nur deine alten Einstellungen bereit, damit BeautifulRestedXP sie übernehmen kann; sonst tut er nichts.
+## Author: HeartOfD2
+## Version: @project-version@
+## X-Transfer: BeautifulRestedXP
+## SavedVariables: EUIRestedXPSkinDB
+
+Transfer.lua

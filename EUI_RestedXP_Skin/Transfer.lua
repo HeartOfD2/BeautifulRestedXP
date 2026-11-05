@@ -1,0 +1,2 @@
+-- Former name of BeautifulRestedXP. This addon only loads the saved variables of EUI RestedXP Skin (see the TOC) so
+-- that BeautifulRestedXP can take them over on its first start. It runs no code of its own.

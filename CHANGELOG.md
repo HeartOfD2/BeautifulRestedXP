@@ -1,4 +1,37 @@
-# Changelog — EUI RestedXP Skin
+# Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
+
+## 0.11.0 (2026-11-05)
+
+### New name, EllesmereUI optional
+- EUI RestedXP Skin is now **BeautifulRestedXP**, built from the same source as BeautifulSkins. EllesmereUI is no
+  longer required: without it the addon has its own options window with themes, fonts and accent colours, a minimap
+  button and an entry in the game's AddOns options. With EllesmereUI the options stay in its options window.
+- Settings of EUI RestedXP Skin are taken over on the first start: the update replaces the old folder with a small
+  `EUI_RestedXP_Skin` folder that only loads the old settings. If the full old addon is still installed by hand, the
+  new one waits and says so in the chat.
+- With BeautifulSkins installed as well, BeautifulRestedXP steps back (BeautifulSkins contains the same skin).
+- The command is now `/brxp` (`/euirxp` still works).
+
+### Look and options
+- **Thirteen themes** (instead of seven) with a theme gallery, and a **theme editor** for your own themes with live
+  contrast check and export / import.
+- New arrow option **Arrow to the next map marker** (the marker tracked right now, as ShortestPathForever's own arrow);
+  the arrow shows the distance to the next bend while the goal is on another continent.
+- Fix: the guide window keeps its place when its size grip is dragged.
+
+### Target switch
+- ShortestPathForever guides one journey at a time, and the RestedXP guide and your own journeys (a quest's
+  "Plan journey", a map click, /way) replace each other. A new switch sets the guide's target again or goes back
+  and forth between the guide's target and your last own journey: button in the guide window header, button in
+  the Journey header of the tracker, Shift-click on the arrow, two key bindings (Key Bindings › AddOns) and
+  `/brxp target` (`/brxp target guide` always sets the guide's target). Shift-click on a button sets the
+  guide's target. In combat the switch happens when combat ends.
+- New option Navigation › Arrow "Remember your own journey" (on): switches on ShortestPathForever's "Keep journeys
+  after a reload", which is where the switch reads your own journey from. Off puts your previous setting back.
+- The arrow now follows whatever journey ShortestPathForever guides, with distance, time and name for your own
+  journey, instead of pointing straight at the guide's target while another journey runs.
+- RestedXP's arrow: the remembered "Hide waypoint arrow" value is kept per RestedXP profile, so a second character
+  no longer switches "Hide RestedXP's own arrow" off for the whole account.
 
 ## 0.10.0 (beta)
 

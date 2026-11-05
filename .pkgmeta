@@ -1,4 +1,8 @@
-package-as: EUI_RestedXP_Skin
+package-as: BeautifulRestedXP
+
+move-folders:
+  BeautifulRestedXP/BeautifulRestedXP_Skin: BeautifulRestedXP_Skin
+  BeautifulRestedXP/EUI_RestedXP_Skin: EUI_RestedXP_Skin
 
 ignore:
   - docs

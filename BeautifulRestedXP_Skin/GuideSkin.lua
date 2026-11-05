@@ -1,4 +1,4 @@
--- EUI RestedXP Skin guide window: hooks, window chrome, header, progress bar, current step,
+-- BeautifulRestedXP guide window: hooks, window chrome, header, progress bar, current step,
 -- upcoming steps list, animations, step boxes, guide window v2 and the hide rules.
 --
 -- Method: RXP stays in charge of content and layout. We mute its backdrops (colour alpha 0), draw flat chrome
@@ -25,12 +25,13 @@ local LINE_H, ROW_PAD, MAX_LINES = 17, 10, 5 -- one line per goal of a listed st
 local LIST_PAD = 34 -- window height = height of the rows + LIST_PAD (13 header overlap + 20 footer + 1)
 local WINDOW_INSET = 3 -- RXP insets its panels from RXPFrame by 3 px (GuideWindow.lua:1388-1389, 1413)
 local MIN_HEIGHT = 28 -- RXP's own minimum window height (GuideWindow.lua:2350)
+local SIZING_POLL = 0.1 -- how often we look whether the user has let go of RXP's size grip (see SizeChanged)
 local SEP = " \194\183 " -- middle dot
 local STEP_TINT = 0.07 -- current step: accent over the window colour
 local STEP_TINT_NEUTRAL = 0.04 -- the same with white, while a theme other than ours is active
 local FLASH_EXTRA, FLASH_TIME = 0.10, 0.45 -- animations "SUBTLE": extra accent tint that fades out on a new step
 local BOX_GAP = 16 -- distance of the step boxes below the window (their title sticks out 10 px above the frame)
-local THEME_NAME = "EUIRestedXPSkin"
+local THEME_NAME = "EUIRestedXPSkin" -- the former addon's name, kept: RestedXP stores the chosen theme by it
 
 local S = {
     hooked = false, applying = false, skinned = false, reported = false,
@@ -40,6 +41,7 @@ local S = {
     -- upcoming list, hiding, v2 and target boxes
     growUp = true, rowsDirty = true, listRows = 0, listHeight = 0, listShift = 0, listProgress = nil, heightBefore = nil, lastProgress = nil,
     hidden = false, alphaWas = nil, v2Pending = false, windowDeferred = false,
+    place = nil, sizing = false, -- window place before a drag of RXP's size grip (see SizeChanged)
     boxHooks = { item = false, target = false }, boxQueued = false, boxes = 0, boxPoints = {},
 }
 local data = setmetatable({}, { __mode = "k" }) -- per-frame state of ours
@@ -402,8 +404,13 @@ local function MakeButton(parent, tooltip, onClick, onRightClick, hint)
         Data(self).hover = true
         PaintButton(self)
         GameTooltip:SetOwner(self, "ANCHOR_BOTTOM")
-        GameTooltip:SetText(tooltip)
-        if hint then GameTooltip:AddLine(hint, 1, 1, 1) end
+        if type(tooltip) == "function" then -- the lines depend on the moment (target switch)
+            GameTooltip:ClearLines()
+            tooltip(GameTooltip)
+        else
+            GameTooltip:SetText(tooltip)
+            if hint then GameTooltip:AddLine(hint, 1, 1, 1) end
+        end
         GameTooltip:Show()
     end)
     button:SetScript("OnLeave", function(self)
@@ -430,7 +437,7 @@ local function EnsureHeader(f)
     h.bar:SetSize(4, 20)
     h.bar:SetPoint("LEFT", h, "LEFT", 10, 0)
 
-    local reserve = 8 + BUTTON * 3 + BUTTON_GAP * 2 + 10 + COUNTER_W + 8 -- right-hand cluster the title must not enter
+    local reserve = 8 + BUTTON * 4 + BUTTON_GAP * 3 + 10 + COUNTER_W + 8 -- right-hand cluster the title must not enter
     h.title = h:CreateFontString(nil, "OVERLAY")
     h.title:SetFont(STANDARD_TEXT_FONT, SIZE_TITLE, "")
     h.title:SetPoint("TOPLEFT", h, "TOPLEFT", 22, -8)
@@ -448,7 +455,7 @@ local function EnsureHeader(f)
     h.subtitle:SetWordWrap(false)
 
     h.menu = MakeButton(h, L["Guide menu"], OpenMenu, function() ns.OpenOptions("Guide") end,
-        L["Right-click: EUI RestedXP Skin options"])
+        L["Right-click: BeautifulRestedXP options"])
     h.menu:SetPoint("RIGHT", h, "RIGHT", -8, 1)
     local icon = h.menu:CreateTexture(nil, "ARTWORK")
     icon:SetSize(16, 16)
@@ -486,10 +493,29 @@ local function EnsureHeader(f)
     h.prev.label:SetText("<")
     Data(h.prev).label = h.prev.label
 
+    -- Target switch (Targets.lua): the guide's target again, or back and forth to the player's own journey.
+    h.target = MakeButton(h, function(tooltip) ns.Targets.AddTooltip(tooltip) end,
+        function() ns.Targets.Switch(IsShiftKeyDown()) end)
+    h.target:SetPoint("RIGHT", h.prev, "LEFT", -BUTTON_GAP, 0)
+    -- painted like the cog: accent coloured, the same texture added on top for full brightness
+    local targetPath = "Interface\\Buttons\\UI-RefreshButton"
+    local targetIcon = h.target:CreateTexture(nil, "ARTWORK")
+    targetIcon:SetSize(16, 16)
+    targetIcon:SetPoint("CENTER")
+    targetIcon:SetTexture(targetPath)
+    local targetGlow = h.target:CreateTexture(nil, "OVERLAY")
+    targetGlow:SetAllPoints(targetIcon)
+    targetGlow:SetTexture(targetPath)
+    targetGlow:SetBlendMode("ADD")
+    targetGlow:SetDesaturated(true)
+    Data(h.target).icon = targetIcon
+    Data(h.target).glow = targetGlow
+    Data(h.target).iconAccent = true
+
     h.counter = h:CreateFontString(nil, "OVERLAY")
     h.counter:SetFont(STANDARD_TEXT_FONT, SIZE_COUNTER, "")
     h.counter:SetSize(COUNTER_W, SIZE_COUNTER + 3)
-    h.counter:SetPoint("RIGHT", h.prev, "LEFT", -10, 0)
+    h.counter:SetPoint("RIGHT", h.target, "LEFT", -10, 0)
     h.counter:SetJustifyH("RIGHT")
     h.counter:SetWordWrap(false)
 
@@ -675,7 +701,8 @@ local function SkinHeader(f, c)
         p:Hide()
     end
 
-    for _, button in ipairs({ h.prev, h.next, h.menu }) do PaintButton(button) end
+    h.target:SetShown(ns.SPF.Loaded()) -- without ShortestPathForever there is no journey to set
+    for _, button in ipairs({ h.prev, h.next, h.menu, h.target }) do PaintButton(button) end
 end
 
 -- Count goals ("Name: 3/8") only exist as text in RXP: a 3 px bar along the bottom of the goal row.
@@ -1095,6 +1122,65 @@ local function SetHeightAnchored(f, height)
     f:SetHeight(height)
 end
 
+-- A resize drag moves the window. RXP sizes with StartSizing("BOTTOMRIGHT") (GuideWindow.lua): the top edge stays and
+-- the bottom follows the cursor, and RXP keeps an OnUpdate running for as long as the drag lasts. Our height is
+-- row-driven, so FitHeight puts the old height back the moment the drag ends -- but the window now hangs from the
+-- dragged bottom edge, so the whole window had moved in the drag direction (down when dragged down, up when dragged
+-- up). The place from before the drag is therefore remembered whenever RXP is not sizing, and put back afterwards.
+-- The drag is recognised at the window itself (OnSizeChanged) rather than at a mouse handler: five frames can start
+-- one (the grip, the window, the step frame, the guide name, the footer), and the grip calls RXP's handler directly
+-- instead of through a script, so hooking the handlers would miss it.
+local function RememberPlace(f)
+    local left, bottom, top = f:GetLeft(), f:GetBottom(), f:GetTop()
+    if left and bottom and top and ns.CanAccess(left) and ns.CanAccess(bottom) and ns.CanAccess(top) then
+        S.place = { left = left, bottom = bottom, top = top }
+    end
+end
+
+local function HoldPlace()
+    local f = GetFrames()
+    if f and f:GetScript("OnUpdate") then -- still dragging: ask again shortly
+        C_Timer.After(SIZING_POLL, HoldPlace)
+        return
+    end
+    local place = S.place
+    S.sizing = false
+    if not (f and S.skinned) then return end
+    -- RXP calls SetStep on mouse-up while its sizing OnUpdate is still set, and FitHeight stays out of the way then:
+    -- nothing has put the height of the rows back by now. It is done here, after the window is where it belongs.
+    local function Refit() pcall(RefreshList) end
+    -- With guide.growth "DOWN" the top edge is the one that must stay, and RXP's sizing keeps it anyway.
+    if not (place and S.growUp) then Refit() return end
+    local left, top = f:GetLeft(), f:GetTop()
+    if not (left and top and ns.CanAccess(left) and ns.CanAccess(top)) then Refit() return end
+    -- Sizing by the bottom-right corner leaves the top where it was. A different top means the window was moved as
+    -- well (or the remembered place is from before such a move): then it belongs where it is now, not where it was.
+    if math.abs(top - place.top) > 0.5 then
+        Refit()
+        RememberPlace(f)
+        return
+    end
+    local function Hold()
+        f:ClearAllPoints()
+        f:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", left, place.bottom)
+        Refit() -- the height of the rows, grown from the bottom edge that is back in place
+        RememberPlace(f)
+        -- RXP saved the dragged place in its own OnMouseUp: let it save the corrected one.
+        local rxp = Rxp()
+        local settings = type(rxp) == "table" and rxp.settings
+        if type(settings) == "table" and type(settings.SaveFramePositions) == "function" then
+            pcall(settings.SaveFramePositions, settings)
+        end
+    end
+    if IsLocked(f) then ns.Queue(Hold) else Hold() end -- see WindowLocked
+end
+
+local function SizeChanged(f)
+    if S.sizing or not f:GetScript("OnUpdate") then return end -- RXP sets OnUpdate only while it sizes
+    S.sizing = true
+    C_Timer.After(SIZING_POLL, HoldPlace)
+end
+
 -- The window is as tall as its rows: a constant for a given `upcoming`, so it does not jump from step to step.
 -- Not while the user drags the size grip (RXP runs its OnUpdate then; the mouse-up SetStep brings us back here) and not
 -- for guides that collapse the window themselves (`hidewindow`).
@@ -1118,6 +1204,7 @@ function RefreshList()
     if f and cur and S.skinned and not f:GetScript("OnUpdate") then
         pcall(SkinList, f, cur)
         pcall(FitHeight, f, cur)
+        RememberPlace(f) -- the place a resize drag has to give back
     end
 end
 
@@ -1506,6 +1593,7 @@ local function EachWindowFrame(f, fn)
         fn(header.prev)
         fn(header.next)
         fn(header.menu)
+        fn(header.target)
     end
     local steps = f.CurrentStepFrame.framePool
     if type(steps) == "table" then
@@ -1559,7 +1647,7 @@ local function CheckV2()
     if not profile then return end
     profile.enableV2Interface = false
     S.v2Pending = true
-    ns.Say(L["RestedXP's guide window v2 was switched off so EUI RestedXP Skin can style the classic window. Type /reload to apply."])
+    ns.Say(L["RestedXP's guide window v2 was switched off so BeautifulRestedXP can style the classic window. Type /reload to apply."])
 end
 
 -- ---------------------------------------------------------------------------------------------------------------
@@ -1807,6 +1895,8 @@ local function InstallHooks()
     Hook(f.BottomFrame, "UpdateFrame", "frame")
     Hook(rxp, "RenderFrame", "render")
     Hook(rxp, "SetStep", "step")
+    f:HookScript("OnSizeChanged", SizeChanged)
+    RememberPlace(f)
     S.hooked = true
     return true
 end
@@ -1920,7 +2010,7 @@ local function ActiveList(f)
     return #parts > 0 and table.concat(parts, ",") or "-"
 end
 
--- Options that /euirxp guide set can change (debug path next to the option pages): bool, int or an enum.
+-- Options that /brxp guide set can change (debug path next to the option pages): bool, int or an enum.
 local OPTIONS = {
     upcoming = { min = 0, max = 5 },
     stepNumbers = "bool", progress = "bool", header = "bool", lockBoxes = "bool",
@@ -1972,8 +2062,8 @@ local function SetOption(text)
     ns.RefreshAll()
 end
 
--- /euirxp guide [on|off|set <option> <value>]: switch the skin or set an option by hand (debug path next to the
--- option pages); no argument prints the state (debug output, English like /euirxp probe and nav).
+-- /brxp guide [on|off|set <option> <value>]: switch the skin or set an option by hand (debug path next to the
+-- option pages); no argument prints the state (debug output, English like /brxp probe and nav).
 function ns.GuideCommand(arg)
     local sub, rest = (arg or ""):match("^(%S*)%s*(.-)$")
     if sub == "on" or sub == "off" then

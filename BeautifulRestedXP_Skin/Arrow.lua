@@ -1,4 +1,4 @@
--- EUI RestedXP Skin arrow.
+-- BeautifulRestedXP arrow.
 -- Our own frame, never RXP.arrowFrame. Four states (travelling, transport, arrived, wrong continent), four styles
 -- (Chevron, Ring, Pill, Classic) and three colour modes (accent, direction, custom). Data comes from SPFBridge.lua
 -- (ns.Target, ns.PlayerPos, ns.PlayerFacing, ns.DistanceTo, ns.ToUnit, ns.FormatTime, ns.ETA, ns.Transport).
@@ -186,6 +186,15 @@ local function SavePoint()
     if ns.db.nav.centerLock then CentreOnScreen() end
 end
 
+-- Mouse on the arrow: always while unlocked (dragging); while locked only with Shift held and ShortestPathForever
+-- there, for Shift-click = target switch. Otherwise a locked arrow never catches clicks meant for the world.
+local moved = false -- the left button dragged since it went down: no Shift-click then
+
+local function MouseWanted()
+    if ns.db.nav.locked == false then return true end
+    return IsShiftKeyDown() and ns.SPF.Api() ~= nil or false
+end
+
 -- Right click on the unlocked arrow: centre it horizontally, keep the height.
 local function CenterHorizontally()
     if not ns.db or ns.db.nav.locked ~= false or InCombatLockdown() then return end
@@ -244,7 +253,7 @@ local function Layout()
     arrow:SetScale(Clamp(nav.scale, 0.5, 2, 0.70))
     arrow:SetAlpha(Clamp(nav.alpha, 0.2, 1, 1))
     if not dragging then ApplyPoint() end
-    arrow:EnableMouse(nav.locked == false) -- a locked arrow never catches clicks meant for the world
+    arrow:EnableMouse(MouseWanted()) -- a locked arrow catches clicks only while Shift is held (target switch)
 
     accentR, accentG, accentB = ns.Accent()
     etaText:SetTextColor(accentR, accentG, accentB, 1)
@@ -350,7 +359,7 @@ end
 -- ---------------------------------------------------------------------------------------------------------------
 -- State and update
 
-local current = { kind = "NONE" } -- last computed state, for /euirxp nav
+local current = { kind = "NONE" } -- last computed state, for /brxp nav
 local latch = { key = nil, arrived = false } -- "arrived" holds until the step target changes (RXP ticks the step off)
 
 -- kind: "ARROW" (arrowhead rotated by angle), "CHECK", "TRANSPORT" or "NONE".
@@ -407,6 +416,10 @@ local function Update()
     -- Distance and arrival time refer to the RXP step target, the direction to SPF's next bend.
     local goal = t.goal or t
     local yards, why = ns.DistanceTo(goal.cont, goal.x, goal.y)
+    -- the goal lies on another continent (boat, zeppelin ahead): the distance to the next bend, as SPF's arrow shows
+    if not yards and why == "continent" and t.goal and t.cont == inst then
+        yards = ns.DistanceTo(t.cont, t.x, t.y)
+    end
     local key = t.goal and t.goal.key or nil
     if key ~= latch.key then latch.key, latch.arrived = key, false end
     local radius = t.goal and t.goal.radius
@@ -496,6 +509,7 @@ slide:SetScript("OnUpdate", function(self)
 end)
 
 arrow:SetScript("OnDragStart", function(self)
+    moved = true
     if not ns.db or ns.db.nav.locked ~= false or InCombatLockdown() then return end
     dragging = true
     if ns.db.nav.centerLock then
@@ -513,51 +527,109 @@ arrow:SetScript("OnDragStop", function(self)
     dragging = false
     SavePoint()
 end)
+arrow:SetScript("OnMouseDown", function()
+    moved = false
+end)
 arrow:SetScript("OnMouseUp", function(_, button)
-    if button == "RightButton" then CenterHorizontally() end
+    if button == "RightButton" then
+        CenterHorizontally()
+    elseif button == "LeftButton" and IsShiftKeyDown() and not moved and ns.Targets then
+        ns.Targets.Switch(false) -- Shift-click: guide's target <-> your own journey
+    end
+end)
+
+-- Shift pressed or released: a locked arrow takes the mouse only while Shift is held.
+local modifiers = CreateFrame("Frame")
+modifiers:RegisterEvent("MODIFIER_STATE_CHANGED")
+modifiers:SetScript("OnEvent", function()
+    if ns.db then arrow:EnableMouse(MouseWanted()) end
 end)
 
 -- ---------------------------------------------------------------------------------------------------------------
 -- RXP's own arrow: hidden through RXP's own option "Hide waypoint arrow" (profile.disableArrow), the previous
 -- value is remembered once and put back when the option is switched off or the settings are reset.
+-- Our option is account-wide, disableArrow lives in RXP's settings profile (usually one per character), so the
+-- remembered values are kept per RXP profile: rxpArrowBackup[profileKey].
 
 local RXPArrow = {}
 ns.RXPArrow = RXPArrow
 
 local rxpSynced = false
 
--- Puts RXP's remembered value back and forgets it.
-local function Release(profile, rxp)
-    profile.disableArrow = ns.db.rxpArrowBackup
-    ns.db.rxpArrowBackup = nil
-    if type(rxp.UpdateGotoSteps) == "function" then pcall(rxp.UpdateGotoSteps) end -- lets RXP show its arrow again
+-- RXP's stored settings profiles (AceDB "RXPSettings"), or nothing.
+local function StoredProfiles()
+    local sv = _G.RXPSettings
+    if type(sv) == "table" and type(sv.profiles) == "table" then return sv.profiles end
+end
+
+-- Name of RXP's active settings profile; falls back to looking the table up among the stored profiles.
+local function ProfileKey(profile, rxp)
+    local get = type(rxp.settings) == "table" and rxp.settings.GetSettingsDB
+    if type(get) == "function" then
+        local ok, key = pcall(get)
+        if ok and type(key) == "string" then return key end
+    end
+    for key, stored in pairs(StoredProfiles() or {}) do
+        if stored == profile then return key end
+    end
+    return "?"
+end
+
+-- The remembered values by RXP profile. Up to 0.10.0 one value was kept for the whole account; nobody knows which
+-- profile it came from, so it is only taken over by the active profile while that one still carries our mark.
+local function Backups(profile, key)
+    local backups = ns.db.rxpArrowBackup
+    if type(backups) ~= "table" then
+        local old = backups
+        backups = {}
+        ns.db.rxpArrowBackup = backups
+        if old ~= nil and profile and profile.disableArrow == true then backups[key] = old == true end
+    end
+    return backups
+end
+
+-- Puts every remembered value back into its RXP profile and forgets them. A profile whose disableArrow is no longer
+-- true was changed in RXP since then: that is the user's value and stays.
+local function ReleaseAll(profile, rxp)
+    local active = profile and ProfileKey(profile, rxp)
+    local backups = Backups(profile, active)
+    local stored = StoredProfiles()
+    for key, value in pairs(backups) do
+        local target = key == active and profile or stored and stored[key]
+        if type(target) == "table" and target.disableArrow == true then target.disableArrow = value end
+        backups[key] = nil
+    end
+    if profile and type(rxp.UpdateGotoSteps) == "function" then pcall(rxp.UpdateGotoSteps) end -- lets RXP show its arrow again
 end
 
 -- Brings RXP's setting in line with nav.hideRxpArrow. Returns false while RXP's profile is not ready yet.
 function RXPArrow.Sync()
     local profile, rxp = ns.RxpProfile()
     if not (profile and ns.db) then return false end
-    if ns.db.nav.hideRxpArrow ~= false and ns.db.rxpArrowBackup ~= nil and profile.disableArrow ~= true then
-        -- We had hidden RXP's arrow and it has since been switched on again in RXP's own options ("Hide waypoint
-        -- arrow"): the user's latest choice wins, our option follows it instead of hiding the arrow again.
+    local key = ProfileKey(profile, rxp)
+    local backups = Backups(profile, key)
+    if ns.db.nav.hideRxpArrow ~= false and backups[key] ~= nil and profile.disableArrow ~= true then
+        -- We had hidden RXP's arrow in this very profile and it has since been switched on again in RXP's own options
+        -- ("Hide waypoint arrow"): the user's latest choice wins, our option follows it instead of hiding the arrow
+        -- again, and the other profiles get their own values back.
         ns.db.nav.hideRxpArrow = false
-        ns.db.rxpArrowBackup = nil
+        ReleaseAll(profile, rxp)
     elseif ns.db.nav.hideRxpArrow ~= false then
-        if ns.db.rxpArrowBackup == nil then ns.db.rxpArrowBackup = profile.disableArrow == true end
+        if backups[key] == nil then backups[key] = profile.disableArrow == true end
         profile.disableArrow = true
         local frame = rxp.arrowFrame
         if type(frame) == "table" and type(frame.Hide) == "function" then pcall(frame.Hide, frame) end -- RXP's frame is not protected
-    elseif ns.db.rxpArrowBackup ~= nil then
-        Release(profile, rxp)
+    elseif next(backups) ~= nil then
+        ReleaseAll(profile, rxp)
     end
     rxpSynced = true
     return true
 end
 
--- "Reset to defaults" (before EUIRestedXPSkinDB is wiped): RXP's value back; the next refresh syncs with the reset option.
+-- "Reset to defaults" (before our SavedVariables are wiped): RXP's values back; the next refresh syncs with the reset option.
 function RXPArrow.Restore()
     local profile, rxp = ns.RxpProfile()
-    if profile and ns.db and ns.db.rxpArrowBackup ~= nil then Release(profile, rxp) end
+    if ns.db then ReleaseAll(profile, rxp) end
     rxpSynced = false
 end
 
@@ -589,7 +661,7 @@ ns.OnLoaded(function()
     C_Timer.NewTicker(IDLE, IdleTick)
 end)
 
--- /euirxp lock | unlock
+-- /brxp lock | unlock
 -- Options page: back to the default place (the arrow is drawn from nav.point on the next refresh).
 function ns.ResetArrowPosition()
     ns.db.nav.point = { unpack(DEFAULT_POINT) }
@@ -598,11 +670,11 @@ end
 
 function ns.SetArrowLocked(locked)
     ns.db.nav.locked = locked and true or false
-    ns.Say(locked and L["Arrow locked."] or L["Arrow unlocked. Drag it with the left mouse button, right-click centres it horizontally; lock it again with /euirxp lock."])
+    ns.Say(locked and L["Arrow locked."] or L["Arrow unlocked. Drag it with the left mouse button, right-click centres it horizontally; lock it again with /brxp lock."])
     ns.RefreshAll()
 end
 
--- /euirxp nav: add the arrow's own state to the navigation debug output.
+-- /brxp nav: add the arrow's own state to the navigation debug output.
 local baseNavDebug = ns.NavDebug
 function ns.NavDebug()
     if baseNavDebug then baseNavDebug() end
@@ -611,8 +683,16 @@ function ns.NavDebug()
         tostring(arrow:IsShown()), current.kind, current.mode and ("/" .. current.mode) or "", style, angle,
         tostring(distText.lastText), tostring(etaText.lastText), tostring(nameText.lastText), arrow:GetScale(),
         ns.db and ns.db.nav.point and table.concat(ns.db.nav.point, ",") or "-"))
-    local profile = ns.RxpProfile()
-    ns.Say(("rxp arrow: hide wanted %s  RXP disableArrow %s  backup %s  synced %s  arrived latch %s"):format(
-        tostring(ns.db and ns.db.nav.hideRxpArrow), tostring(profile and profile.disableArrow),
-        tostring(ns.db and ns.db.rxpArrowBackup), tostring(rxpSynced), tostring(latch.arrived)))
+    local profile, rxp = ns.RxpProfile()
+    local key = profile and ProfileKey(profile, rxp)
+    local backups, kept = ns.db and ns.db.rxpArrowBackup, {}
+    if type(backups) == "table" then
+        for name, value in pairs(backups) do kept[#kept + 1] = ("%s=%s"):format(name, tostring(value)) end
+    elseif backups ~= nil then
+        kept[1] = "old " .. tostring(backups)
+    end
+    table.sort(kept)
+    ns.Say(("rxp arrow: hide wanted %s  RXP profile '%s'  disableArrow %s  backups {%s}  synced %s  arrived latch %s"):format(
+        tostring(ns.db and ns.db.nav.hideRxpArrow), tostring(key), tostring(profile and profile.disableArrow),
+        table.concat(kept, ", "), tostring(rxpSynced), tostring(latch.arrived)))
 end

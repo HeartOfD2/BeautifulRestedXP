@@ -165,19 +165,35 @@ local function RXPGoal()
     c.e, c.zone, c.ex, c.ey, c.value = e, e.zone, e.x, e.y, value
     return value
 end
+ns.GuideGoal = RXPGoal
 
--- SPF's current waypoint (the next bend of its route) while SPF guides RestedXP and that waypoint is tracked.
+-- A goal table like RXPGoal's from a uiMapID and 0-1 coordinates (Targets.lua: the player's own journey).
+function ns.MakeGoal(mapID, mx, my, name)
+    local cont, x, y = WorldPos(mapID, mx, my)
+    if not cont then return end
+    return {
+        mapID = mapID, mx = mx, my = my, cont = cont, x = x, y = y, name = CleanName(name),
+        key = ("%d:%.5f:%.5f"):format(mapID, mx, my),
+    }
+end
+
+-- SPF's current waypoint (the next bend of its route) while SPF guides a journey and that waypoint is tracked.
+-- guide: the journey is RestedXP's; otherwise it is another one (the player's own, a quest, /way).
 local function SPFWaypoint()
     local api = SPF.Api()
     if not api then return end
-    if not Try(api.CurrentStop, OWNER) then return end
+    local guide = Try(api.CurrentStop, OWNER) ~= nil
+    -- "Arrow to the next map marker": whatever marker is tracked counts, also without a journey of SPF's
+    local anyMarker = ns.db and ns.db.nav and ns.db.nav.nextMarker == true
+    if not guide and not anyMarker and not (type(api.Active) == "function" and Try(api.Active)) then return end
     local tracking = C_SuperTrack and C_SuperTrack.IsSuperTrackingUserWaypoint
     if not (tracking and Try(tracking)) then return end
     local wp = C_Map.GetUserWaypoint and Try(C_Map.GetUserWaypoint)
     if type(wp) ~= "table" or not ns.CanAccess(wp) then return end
     local x, y = PosXY(wp.position)
     if not x then return end
-    return WorldPos(wp.uiMapID, x, y)
+    local cont, wx, wy = WorldPos(wp.uiMapID, x, y)
+    if cont then return cont, wx, wy, guide end
 end
 
 local targetCache = { time = -1 }
@@ -190,8 +206,16 @@ function ns.Target()
     local value
     local goal = RXPGoal()
     if ns.NavSource() == "SPF" then
-        local cont, x, y = SPFWaypoint()
-        if cont then value = { source = "SPF", cont = cont, x = x, y = y, goal = goal } end
+        local cont, x, y, guide = SPFWaypoint()
+        -- another journey than the guide's: its goal when Targets.lua knows it, else the direction alone
+        if cont then
+            value = { source = "SPF", cont = cont, x = x, y = y, goal = guide and goal or ns.Targets.OtherGoal() }
+        else
+            -- SPF sets no native waypoint while the bend lies off the current zone map or a tracked quest has the
+            -- super-track: then straight at the own journey's goal, as for the guide's target below
+            local other = ns.Targets.OtherGoal()
+            if other then value = { source = "JOURNEY", cont = other.cont, x = other.x, y = other.y, goal = other } end
+        end
     end
     if not value and goal then
         value = { source = "RXP", cont = goal.cont, x = goal.x, y = goal.y, goal = goal } -- fallback
@@ -270,7 +294,7 @@ local SPF_TYPE = {
     compassScale = "number", compassBackground = "number", mapPinScale = "number",
     transit = "boolean", portals = "boolean", mapFlightMasters = "boolean",
     flightPinScale = "number", minimapPinScale = "number", -- only where this SPF version has them (Write checks)
-    journeyTracker = "boolean", compassTime = "boolean",
+    journeyTracker = "boolean", compassTime = "boolean", resumeJourney = "boolean",
 }
 
 local reloadHinted = false
@@ -296,7 +320,7 @@ function SPF.Get(key)
 end
 
 -- Writes through the Settings API so SPF runs its own callbacks; without it, straight into SPF's DB plus a
--- /reload hint. With remember, the previous value is stored once in EUIRestedXPSkinDB.spfBackup.
+-- /reload hint. With remember, the previous value is stored once in our SavedVariables.spfBackup.
 local function Write(key, value, remember)
     if SPF_TYPE[key] == nil or type(value) ~= SPF_TYPE[key] or not SPF.Loaded() then return false end
     local previous = SPF.Get(key)
@@ -334,7 +358,7 @@ function SPF.RestoreKey(key)
     end)
 end
 
--- "Reset to defaults": write all remembered values back and forget them. Call before wiping EUIRestedXPSkinDB.
+-- "Reset to defaults": write all remembered values back and forget them. Call before wiping our SavedVariables.
 function SPF.RestoreAll()
     local backup = ns.db and ns.db.spfBackup
     if type(backup) ~= "table" then return end
@@ -356,19 +380,25 @@ local function SyncSource(nav)
     else
         SPF.Set("restedxp", true)
         SPF.Set("journey", true)
-        SPF.RestoreKey("arrow")
+        -- SPF's "Show direction arrow": with it off SPF places no bends for the player's own journeys (GearQuest
+        -- hunts, map clicks), so our arrow would have no direction there. SPF's own arrow stays out of the way.
+        SPF.Set("arrow", true)
     end
 end
 
 local SYNC = {
     source = SyncSource,
+    -- SPF's "Keep journeys after a reload" is what writes the player's own journey to where Targets.lua can read it
+    rememberJourney = function(nav)
+        if nav.rememberJourney ~= false then SPF.Set("resumeJourney", true) else SPF.RestoreKey("resumeJourney") end
+    end,
     replaceSpfArrow = SyncSource,
     transports = function(nav) SPF.Set("teleports", nav.transports == true) end, -- teleports only
     stepEndOnly = function(nav) SPF.Set("guideStops", nav.stepEndOnly == true) end,
     unit = function(nav) SPF.Set("metres", nav.unit == "m") end,
 }
 
--- Call after the user changed one of nav.source, replaceSpfArrow, transports, stepEndOnly, unit
+-- Call after the user changed one of nav.source, replaceSpfArrow, transports, stepEndOnly, unit, rememberJourney
 -- (no argument: all of them). Not called on load: SPF's values are only touched on a user change.
 function SPF.OnOptionChanged(name)
     local nav = ns.db and ns.db.nav
@@ -383,13 +413,14 @@ function SPF.OnOptionChanged(name)
             SYNC.transports(nav)
             SYNC.stepEndOnly(nav)
             SYNC.unit(nav)
+            SYNC.rememberJourney(nav)
         end
     end
     ns.RefreshAll()
 end
 
 -- ---------------------------------------------------------------------------------------------------------------
--- Debug: /euirxp nav prints the route source and arrow target
+-- Debug: /brxp nav prints the route source and arrow target
 
 local function S(v) return tostring(v) end
 

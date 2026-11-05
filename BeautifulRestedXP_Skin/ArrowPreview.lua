@@ -270,8 +270,10 @@ local function SourceText()
     return false, L["RestedXP step target (straight line)"]
 end
 
-function ns.BuildArrowHeader(header)
-    local pad = CONTENT_PAD
+-- Draws the preview into `header` (an options row frame); pad = inner left/right margin. Returns the height and the
+-- preview object (its Update redraws it).
+function ns.BuildArrowHeader(header, pad)
+    pad = pad or CONTENT_PAD
     local preview = { frame = header }
 
     local title = Label(header, 11)
@@ -348,8 +350,10 @@ function ns.BuildArrowHeader(header)
 
     current = preview
     Render()
-    return HEIGHT
+    return HEIGHT, preview
 end
+
+ns.ARROW_PREVIEW_HEIGHT = HEIGHT
 
 ns.RegisterRefresh(function()
     if current then current.Update() end

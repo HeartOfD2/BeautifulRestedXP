@@ -1,218 +1,185 @@
--- German translations.
+-- German texts of the host. Keys are the English source texts (Locales\enUS.lua). Packs keep their own tables and
+-- fall back to this one for shared words.
 local _, ns = ...
-if ns.Locale() ~= "deDE" then return end
-local L = ns.L
 
--- core
-L["The EllesmereUI options are not available."] = "Die EllesmereUI-Optionen sind nicht verfügbar."
-L["The options cannot be opened in combat."] = "Die Optionen lassen sich im Kampf nicht öffnen."
-L["The options could not be opened."] = "Die Optionen konnten nicht geöffnet werden."
-L["Usage: /euirxp [probe|nav|lock|unlock|guide|spf]"] = "Verwendung: /euirxp [probe|nav|lock|unlock|guide|spf]"
-L["Click to open the options."] = "Klicken, um die Optionen zu öffnen."
-
--- modules and pages
-L["Guide window"] = "Guide-Fenster"
-L["Navigation"] = "Navigation"
-L["RestedXP Guides in the EllesmereUI look: window, steps and colors."] = "RestedXP Guides im EllesmereUI-Look: Fenster, Schritte und Farben."
-L["Arrow and route. Route planning comes from ShortestPathForever, the EUI-style arrow from EUI RestedXP Skin."] = "Pfeil und Route. Die Wegberechnung kommt von ShortestPathForever, der Pfeil im EUI-Stil von EUI RestedXP Skin."
-L["General"] = "Allgemein"
-L["Fonts"] = "Schriftarten"
-L["Colors"] = "Farben"
-L["Arrow"] = "Arrow"
-L["Compass bar"] = "Kompassband"
-L["Map"] = "Karte"
-
--- section headers
-L["DISPLAY"] = "ANZEIGE"
-L["STEPS"] = "SCHRITTE"
-L["BEHAVIOR"] = "VERHALTEN"
-L["FONT"] = "SCHRIFT"
-L["SIZES"] = "GRÖSSEN"
-L["ACCENT"] = "AKZENT"
-L["PROGRESS"] = "FORTSCHRITT"
-L["SOURCE"] = "QUELLE"
-L["ARROW"] = "PFEIL"
-L["COMPASS BAR"] = "KOMPASSBAND"
-L["MAP"] = "KARTE"
-
--- theme and skinning hint
-L["RestedXP settings are not available."] = "Die RestedXP-Einstellungen sind nicht verfügbar."
-L["Theme in RestedXP: active"] = "Theme in RestedXP: aktiv"
-L["Theme in RestedXP: inactive"] = "Theme in RestedXP: inaktiv"
-L["EllesmereUIBlizzardSkin is not loaded: the guide window skin is off and the colours use the fallback or custom colour."] = "EllesmereUIBlizzardSkin ist nicht geladen: Der Guide-Fenster-Skin ist aus, die Farben nutzen die Ersatzfarbe oder die eigene Farbe."
-L["Skinning of other addons is switched off in EllesmereUI: the guide window skin is off (it returns after /reload once skinning is on)."] = "Das Skinning anderer Addons ist in EllesmereUI ausgeschaltet: Der Guide-Fenster-Skin ist aus (er kommt nach /reload zurück, sobald das Skinning an ist)."
-L["Skinning of EUI RestedXP Skin is switched off in EllesmereUI (Third-Party Addons): the guide window skin is off (it returns after /reload once skinning is on)."] = "Das Skinning von EUI RestedXP Skin ist in EllesmereUI ausgeschaltet (Fremd-Addons): Der Guide-Fenster-Skin ist aus (er kommt nach /reload zurück, sobald das Skinning an ist)."
-L["EllesmereUI has not applied its skin to EUI RestedXP Skin: the guide window skin is off (it returns after /reload once the skin is applied)."] = "EllesmereUI hat seinen Skin nicht auf EUI RestedXP Skin angewendet: Der Guide-Fenster-Skin ist aus (er kommt nach /reload zurück, sobald der Skin angewendet wird)."
-
--- SPF bridge
-L["ShortestPathForever settings were saved directly. Type /reload to apply them."] = "Die ShortestPathForever-Einstellungen wurden direkt gespeichert. Mit /reload werden sie übernommen."
-
--- arrow
-L["Drag to move the arrow"] = "Zum Verschieben ziehen"
-L["Arrow locked."] = "Pfeil gesperrt."
-L["Arrow unlocked. Drag it with the left mouse button, right-click centres it horizontally; lock it again with /euirxp lock."] = "Pfeil entsperrt. Mit gedrückter linker Maustaste verschieben, Rechtsklick zentriert ihn waagerecht; mit /euirxp lock wieder sperren."
-
--- arrow states
-L["Arrived"] = "Angekommen"
-L["Departure %s"] = "Abfahrt %s"
-L["Transport"] = "Transport"
-L["Flight path"] = "Flugroute"
-L["Boat"] = "Schiff"
-L["Zeppelin"] = "Zeppelin"
-L["Lift"] = "Aufzug"
-L["Tram"] = "Tiefenbahn"
-L["Portal"] = "Portal"
-L["Teleport"] = "Teleport"
-L["Passage"] = "Durchgang"
-
--- guide window
-L["Guide menu"] = "Guide-Menü"
-L["Right-click: EUI RestedXP Skin options"] = "Rechtsklick: EUI-RestedXP-Skin-Optionen"
-L["Previous step"] = "Vorheriger Schritt"
-L["Next step"] = "Nächster Schritt"
-L["Right-click to pick a guide"] = "Rechtsklick, um einen Guide zu wählen"
-L["Level %s-%s"] = "Stufe %s-%s"
-L["Guide skin on."] = "Guide-Skin an."
-L["Guide skin off."] = "Guide-Skin aus."
-
--- guide window v2
-L["RestedXP's guide window v2 was switched off so EUI RestedXP Skin can style the classic window. Type /reload to apply."] = "Das Guide-Fenster v2 von RestedXP wurde abgeschaltet, damit EUI RestedXP Skin das klassische Fenster gestalten kann. Mit /reload wird es übernommen."
-
--- options
-L["Reset to defaults"] = "Auf Standard zurücksetzen"
-L["EUI RestedXP Skin options were reset to the defaults."] = "Die Optionen von EUI RestedXP Skin wurden auf die Standardwerte zurückgesetzt."
-L["Reset window position"] = "Fensterposition zurücksetzen"
-L["The guide window is not available."] = "Das Guide-Fenster ist nicht verfügbar."
-L["Restyle RestedXP"] = "RestedXP umgestalten"
-L["Switches the whole guide window skin on or off. Off gives RestedXP's own look back."] = "Schaltet den gesamten Guide-Fenster-Skin ein oder aus. Aus bringt das Aussehen von RestedXP zurück."
-L["Layout"] = "Layout"
-L["Compact"] = "Kompakt"
-L["RestedXP standard"] = "RestedXP-Standard"
-L["Compact is the EllesmereUI look; RestedXP standard leaves the window as RestedXP draws it."] = "Kompakt ist der EllesmereUI-Look; RestedXP-Standard lässt das Fenster so, wie RestedXP es zeichnet."
-L["Window opacity"] = "Fenster-Deckkraft"
-L["Window width"] = "Fensterbreite"
-L["The lowest position (230) keeps the width RestedXP uses. Higher values set the width in pixels (240 to 480)."] = "Die unterste Stellung (230) behält die Breite von RestedXP. Höhere Werte setzen die Breite in Pixeln (240 bis 480)."
-L["Follow the EllesmereUI accent colour"] = "EllesmereUI-Akzentfarbe folgen"
-L["Off: the accent colour set on the Colors page is used."] = "Aus: Es gilt die Akzentfarbe von der Seite Farben."
-L["Background tint (%)"] = "Hintergrund-Tönung (%)"
-L["How strongly the accent colour tints the window background."] = "Wie stark die Akzentfarbe den Fensterhintergrund tönt."
-L["Show header"] = "Kopfzeile anzeigen"
-L["Border"] = "Rahmen"
-L["None"] = "Keiner"
-L["Thin (1 px)"] = "Dünn (1 px)"
-L["Window grows"] = "Fenster wächst nach"
-L["Upwards"] = "oben"
-L["Downwards"] = "unten"
-L["Which edge of the window stays in place when its height changes."] = "Welche Kante des Fensters stehen bleibt, wenn sich die Höhe ändert."
-L["Upcoming steps"] = "Kommende Schritte"
-L["How many upcoming steps are listed. This also sets the window height; the mouse wheel scrolls through the whole guide."] = "Wie viele kommende Schritte aufgelistet werden. Das bestimmt auch die Fensterhöhe; das Mausrad scrollt durch den ganzen Guide."
-L["Step numbers"] = "Schrittnummern"
-L["Progress bar"] = "Fortschrittsbalken"
-L["Pin target icons to the window"] = "Zielsymbole am Fenster fixieren"
-L["Keeps RestedXP's item and target boxes on the edge of the window. Drag a box (Alt, if RestedXP locks its frames) to move it along the edge or to another edge. Changes apply outside of combat."] = "Hält die Gegenstands- und Zielboxen von RestedXP am Fensterrand. Eine Box ziehen (mit Alt, falls RestedXP seine Fenster sperrt), um sie am Rand entlang oder an eine andere Kante zu schieben. Änderungen wirken außerhalb des Kampfes."
-L["Keep arrow centred"] = "Pfeil zentriert halten"
-L["Keeps the arrow on the vertical centre line of the screen. When unlocked, dragging only moves it up and down."] = "Hält den Pfeil auf der senkrechten Mittellinie des Bildschirms. Entsperrt lässt er sich nur nach oben und unten ziehen."
-L["Box position"] = "Position der Boxen"
-L["Automatic"] = "Automatisch"
-L["Bottom"] = "Unten"
-L["Top"] = "Oben"
-L["Left"] = "Links"
-L["Right"] = "Rechts"
-L["Which edge of the window the item and target boxes sit on. Automatic uses the bottom edge unless there is no room under the window."] = "An welcher Fensterkante die Gegenstands- und Zielboxen sitzen. Automatisch nimmt die Unterkante, außer darunter ist kein Platz."
-L["Hide in combat"] = "Im Kampf ausblenden"
-L["Hide in instances"] = "In Instanzen ausblenden"
-L["Block guide window v2 (needs /reload)"] = "Guide-Fenster v2 blockieren (braucht /reload)"
-L["RestedXP's beta window v2 replaces the classic window that EUI RestedXP Skin styles. On: v2 is switched off in RestedXP; type /reload afterwards."] = "Das Beta-Fenster v2 von RestedXP ersetzt das klassische Fenster, das EUI RestedXP Skin gestaltet. An: v2 wird in RestedXP abgeschaltet; danach /reload eingeben."
-L["Animations"] = "Animationen"
-L["Off"] = "Aus"
-L["Subtle"] = "Dezent"
-L["Font"] = "Schrift"
-L["Follow EllesmereUI"] = "EllesmereUI folgen"
-L["Game font"] = "Spielschrift"
-L["Follow EllesmereUI uses the font chosen in EllesmereUI. The game font is the client's default font."] = "„EllesmereUI folgen“ nutzt die in EllesmereUI gewählte Schrift. Die Spielschrift ist die Standardschrift des Clients."
-L["Title"] = "Titel"
-L["Current step"] = "Aktueller Schritt"
-L["Upcoming steps text"] = "Text der kommenden Schritte"
-L["Accent colour"] = "Akzentfarbe"
-L["Switch off \"Follow the EllesmereUI accent colour\" on the General page to use your own."] = "Schalte auf der Seite Allgemein „EllesmereUI-Akzentfarbe folgen“ aus, um eine eigene zu nutzen."
-L["Own window colour"] = "Eigene Fensterfarbe"
-L["Off: the window colour comes from the accent tint. Examples: 161618 or 0F172A."] = "Aus: Die Fensterfarbe kommt aus der Akzent-Tönung. Beispiele: 161618 oder 0F172A."
-L["Window colour"] = "Fensterfarbe"
-L["Switch on \"Own window colour\" first."] = "Schalte zuerst „Eigene Fensterfarbe“ ein."
-L["Own progress colour"] = "Eigene Fortschrittsfarbe"
-L["Off: progress bars use the accent colour."] = "Aus: Die Fortschrittsbalken nutzen die Akzentfarbe."
-L["Progress colour"] = "Fortschrittsfarbe"
-L["Switch on \"Own progress colour\" first."] = "Schalte zuerst „Eigene Fortschrittsfarbe“ ein."
-L["ShortestPathForever is not loaded."] = "ShortestPathForever ist nicht geladen."
-L["Navigation source"] = "Navigationsquelle"
-L["Automatic"] = "Automatisch"
-L["Where the arrow gets its route from. Without ShortestPathForever the arrow points in a straight line to the step target."] = "Woher der Pfeil seine Route bekommt. Ohne ShortestPathForever zeigt der Pfeil in Luftlinie auf das Schrittziel."
-L["Hide the ShortestPathForever arrow"] = "ShortestPathForever-Pfeil ausblenden"
-L["Only available with ShortestPathForever loaded and the source set to RestedXP. With ShortestPathForever guiding, its own arrow is not shown anyway."] = "Nur verfügbar, wenn ShortestPathForever geladen und die Quelle RestedXP ist. Führt ShortestPathForever, ist sein eigener Pfeil ohnehin nicht sichtbar."
-L["Plan transport"] = "Transportmittel einplanen"
-L["ShortestPathForever may use the hearthstone and teleports when planning the route."] = "ShortestPathForever darf bei der Routenplanung Ruhestein und Teleports nutzen."
-L["Aim at the step end only"] = "Nur Schrittende ansteuern"
-L["ShortestPathForever marks only the end of each walking stretch instead of every bend."] = "ShortestPathForever markiert nur das Ende jeder Laufstrecke statt jeder Biegung."
-L["Hide RestedXP's own arrow"] = "Eigenen Pfeil von RestedXP ausblenden"
-L["Switches on RestedXP's \"Hide waypoint arrow\" setting for you, so only one arrow is shown. Off puts your previous RestedXP setting back."] = "Setzt für dich die RestedXP-Einstellung „Wegpunktpfeil ausblenden“, damit nur ein Pfeil sichtbar ist. Aus stellt deine vorherige RestedXP-Einstellung wieder her."
-L["Arrow style"] = "Pfeilstil"
-L["Chevron"] = "Chevron"
-L["Ring"] = "Ring"
-L["Pill"] = "Pille"
-L["Classic"] = "Klassisch"
-L["Size (%)"] = "Größe (%)"
-L["Colour"] = "Farbe"
-L["Follow accent colour"] = "Akzentfarbe folgen"
-L["By direction"] = "Nach Richtung"
-L["Custom"] = "Eigene"
-L["Opacity"] = "Deckkraft"
-L["Custom arrow colour"] = "Eigene Pfeilfarbe"
-L["Set the colour to \"Custom\" first."] = "Stelle die Farbe zuerst auf „Eigene“."
-L["Show distance"] = "Entfernung anzeigen"
-L["Show arrival time"] = "Ankunftszeit anzeigen"
-L["Show target name"] = "Zielname anzeigen"
-L["Unit"] = "Einheit"
-L["Metres"] = "Meter"
-L["Yards"] = "Yards"
-L["Lock position"] = "Position sperren"
-L["Off: drag the arrow with the left mouse button; right-click centres it horizontally."] = "Aus: Den Pfeil mit der linken Maustaste verschieben; Rechtsklick zentriert ihn waagerecht."
-L["Reset arrow position"] = "Pfeilposition zurücksetzen"
-L["Show compass bar"] = "Kompassband anzeigen"
-L["Compass size (%)"] = "Kompassgröße (%)"
-L["Compass background (%)"] = "Kompasshintergrund (%)"
-L["Show routes on the map"] = "Routen auf der Karte anzeigen"
-L["Show map pins"] = "Kartenmarkierungen anzeigen"
-L["Show minimap pins"] = "Minikarten-Markierungen anzeigen"
-L["Pin size (%)"] = "Markierungsgröße (%)"
-L["Show lifts and tram"] = "Aufzüge und Tiefenbahn anzeigen"
-L["Show portals"] = "Portale anzeigen"
-L["Show flight masters"] = "Flugmeister anzeigen"
-L["Flight master size (%)"] = "Flugmeister-Größe (%)"
-L["Minimap pin size (%)"] = "Minikarten-Markierungsgröße (%)"
-L["Travelling"] = "Unterwegs"
-L["Sample target"] = "Beispielziel"
-L["Sample harbour"] = "Beispielhafen"
-L["PREVIEW"] = "VORSCHAU"
-L["ROUTE SOURCE"] = "ROUTENQUELLE"
-L["ShortestPathForever not found - the arrow points in a straight line."] = "ShortestPathForever nicht gefunden – der Pfeil zeigt in Luftlinie."
-L["RestedXP step target (straight line)"] = "RestedXP-Schrittziel (Luftlinie)"
-
--- ShortestPathForever skin (journey and compass)
-L["Journey"] = "Reise"
-L["JOURNEY"] = "REISE"
-L["LOOK"] = "AUSSEHEN"
-L["Show the time left under the compass"] = "Restzeit unter dem Kompass zeigen"
-L["Restyle the compass"] = "Kompass umgestalten"
-L["Ticks, letters and the centre mark in the EllesmereUI look: accent colour for north, the centre and the walking marks, the EllesmereUI font, the window colour behind the band. Off gives ShortestPathForever's own look back."] = "Striche, Buchstaben und Mittelmarke im EllesmereUI-Look: Akzentfarbe für Norden, die Mitte und die Wegmarken, die EllesmereUI-Schrift, die Fensterfarbe hinter dem Band. Aus stellt das Aussehen von ShortestPathForever wieder her."
-L["Show journey in tracker"] = "Reise in der Verfolgung zeigen"
-L["ShortestPathForever's Journey section in the objective tracker column: where you are going, the time left and each step."] = "Der Abschnitt „Reise“ von ShortestPathForever in der Zielverfolgung: Ziel, Restzeit und jeder Schritt."
-L["Restyle the journey"] = "Reise umgestalten"
-L["The Journey section in the look of the EllesmereUI quest tracker: header in the accent colour with a thin line, its fonts and text colours, a dark panel behind it. Off gives ShortestPathForever's own look back."] = "Der Abschnitt „Reise“ im Look der EllesmereUI-Questverfolgung: Überschrift in der Akzentfarbe mit dünner Linie, deren Schriften und Textfarben, eine dunkle Fläche dahinter. Aus stellt das Aussehen von ShortestPathForever wieder her."
-L["Journey background (%)"] = "Reise-Hintergrund (%)"
-L["Opacity of the panel behind the Journey. Its colour is the one of the EllesmereUI quest tracker, otherwise the window colour. 0 shows no panel."] = "Deckkraft der Fläche hinter der Reise. Die Farbe kommt von der EllesmereUI-Questverfolgung, sonst die Fensterfarbe. 0 zeigt keine Fläche."
-L["Current step in the accent colour"] = "Aktueller Schritt in Akzentfarbe"
-L["Off: the current step is white."] = "Aus: Der aktuelle Schritt ist weiß."
-L["Switch on \"Restyle the journey\" first."] = "Zuerst „Reise umgestalten“ einschalten."
-L["Journey: frame %s, hooked %s, skin %s (option %s)"] = "Reise: Frame %s, Hook %s, Skin %s (Option %s)"
-L["Compass: frame %s, hooked %s, skin %s (option %s)"] = "Kompass: Frame %s, Hook %s, Skin %s (Option %s)"
-L["EllesmereUI skinning available: %s, quest tracker settings found: %s"] = "EllesmereUI-Skinning verfügbar: %s, Questverfolgungs-Einstellungen gefunden: %s"
+ns.locales.deDE = {
+    ["%s - options"] = "%s – Optionen",
+    ["%s eui - the options in EllesmereUI"] = "%s eui – die Optionen in EllesmereUI",
+    ["%s help lists all commands."] = "%s help zeigt alle Befehle.",
+    ["%s minimap - show or hide the minimap button"] = "%s minimap – Minikartenknopf zeigen oder verbergen",
+    ["%s options - our own options window"] = "%s options – unser eigenes Optionsfenster",
+    ["%s reset - reset look and language"] = "%s reset – Aussehen und Sprache zurücksetzen",
+    ["%s status - state of every skin"] = "%s status – Zustand aller Skins",
+    ["%s: the former addon %s is still active. Switch it off in the addon list and /reload; its settings are taken over."] =
+        "%s: Das frühere Addon %s ist noch aktiv. Schalte es in der Addon-Liste aus und lade mit /reload neu; seine Einstellungen werden übernommen.",
+    ["Accent"] = "Akzent",
+    ["Accent as text"] = "Akzent als Text",
+    ["Accent color"] = "Akzentfarbe",
+    ["active"] = "aktiv",
+    ["addon not installed"] = "Addon nicht installiert",
+    ["Adds our section to the EllesmereUI options window; the slash command and the minimap button open it there. Off: our own window. Takes effect after a reload."] =
+        "Fügt unseren Bereich ins EllesmereUI-Optionsfenster ein; Befehl und Minikartenknopf öffnen ihn dort. Aus: unser eigenes Fenster. Wirkt nach einem Neuladen.",
+    ["All options are in our own window (or in the EllesmereUI options when the integration is on). Command: %s"] =
+        "Alle Optionen stehen in unserem eigenen Fenster (oder in den EllesmereUI-Optionen, wenn die Einbindung an ist). Befehl: %s",
+    ["APPEARANCE"] = "AUSSEHEN",
+    ["Appearance"] = "Aussehen",
+    ["Attune classic"] = "Attune klassisch",
+    ["Automatic"] = "Automatisch",
+    ["Automatic uses the EllesmereUI language when it is installed, else the language of the game."] =
+        "Automatisch nutzt die EllesmereUI-Sprache, wenn es installiert ist, sonst die Sprache des Spiels.",
+    ["Automatic uses the language of the game."] = "Automatisch nutzt die Sprache des Spiels.",
+    ["Borders"] = "Rahmen",
+    ["Buttons"] = "Knöpfe",
+    ["Class color"] = "Klassenfarbe",
+    ["Classic"] = "Klassisch",
+    ["Click a color to use it as the accent."] = "Klicke eine Farbe an, um sie als Akzent zu nutzen.",
+    ["Close"] = "Schließen",
+    ["Code ready: Ctrl+C copies it. Import pastes it on another account or for a friend."] =
+        "Code bereit: Strg+C kopiert ihn. Mit „Importieren“ fügst du ihn auf einem anderen Account oder bei Freunden ein.",
+    ["COLORS"] = "FARBEN",
+    ["COMMANDS"] = "BEFEHLE",
+    ["Commands:"] = "Befehle:",
+    ["CONTRAST"] = "KONTRAST",
+    ["Copies the colors of the theme in use into a new own theme and switches to it."] =
+        "Kopiert die Farben des aktiven Themes in ein neues eigenes Theme und schaltet darauf um.",
+    ["Dark"] = "Dunkel",
+    ["Dark or light: decides how hover and tracks are shaded."] =
+        "Dunkel oder hell: bestimmt, wie Hover und Leisten schattiert werden.",
+    ["Delete"] = "Löschen",
+    ["Drag: move along the minimap"] = "Ziehen: am Rand der Minikarte verschieben",
+    ["Each pack skins one addon or a group of addons. A pack whose addon is not installed stays asleep. Changes take effect after a reload."] =
+        "Jedes Paket gestaltet ein Addon oder eine Gruppe von Addons. Ein Paket, dessen Addon fehlt, bleibt still. Änderungen wirken nach einem Neuladen.",
+    ["EllesmereUI accent"] = "EllesmereUI-Akzent",
+    ["EllesmereUI font"] = "EllesmereUI-Schrift",
+    ["EllesmereUI found: accent, font and language can follow it."] =
+        "EllesmereUI gefunden: Akzent, Schrift und Sprache können ihm folgen.",
+    ["EllesmereUI is missing or too old (no plugin API)."] =
+        "EllesmereUI fehlt oder ist zu alt (keine Plugin-Schnittstelle).",
+    ["EllesmereUI is not loaded. %s options opens our own window."] =
+        "EllesmereUI ist nicht geladen. %s options öffnet unser eigenes Fenster.",
+    ["EllesmereUI not found: own window and own look."] =
+        "EllesmereUI nicht gefunden: eigenes Fenster und eigenes Aussehen.",
+    ["Ember"] = "Glut",
+    ["Emerald"] = "Smaragd",
+    ["Export"] = "Exportieren",
+    ["failed"] = "fehlgeschlagen",
+    ["Font"] = "Schrift",
+    ["Font of all our texts."] = "Schrift aller unserer Texte.",
+    ["Font of all our texts. \"EllesmereUI font\" follows the font set in EllesmereUI (only while it is installed and enabled)."] =
+        "Schrift aller unserer Texte. „EllesmereUI-Schrift“ folgt der in EllesmereUI gewählten Schrift (nur solange es installiert und aktiv ist).",
+    ["Frost"] = "Frost",
+    ["Game font"] = "Spielschrift",
+    ["GearQuest, SkillUp, Whisper, Waypoint"] = "GearQuest, SkillUp, Whisper, Waypoint",
+    ["General"] = "Allgemein",
+    ["good"] = "gut",
+    ["Graphite"] = "Graphit",
+    ["Header area"] = "Kopfbereich",
+    ["Headings"] = "Überschriften",
+    ["Headings on the header area"] = "Überschriften im Kopfbereich",
+    ["High contrast"] = "Hoher Kontrast",
+    ["Highlight color of every theme and of every skin: headings, lines, arrows, buttons and switches."] =
+        "Hervorhebungsfarbe aller Themes und Skins: Überschriften, Linien, Pfeile, Knöpfe und Schalter.",
+    ["Import"] = "Importieren",
+    ["Imported as a new own theme."] = "Als neues eigenes Theme importiert.",
+    ["Info"] = "Info",
+    ["Input fields"] = "Eingabefelder",
+    ["Integrate into EllesmereUI"] = "In EllesmereUI einbinden",
+    ["INTEGRATION"] = "EINBINDUNG",
+    ["Kind"] = "Art",
+    ["Language"] = "Sprache",
+    ["LANGUAGE"] = "SPRACHE",
+    ["Left-click opens the options, right-click the quick actions. Drag it to move it along the minimap."] =
+        "Linksklick öffnet die Optionen, Rechtsklick die Schnellaktionen. Ziehen verschiebt ihn am Rand der Minikarte.",
+    ["Left-click: options"] = "Linksklick: Optionen",
+    ["Light"] = "Hell",
+    ["Look of our own windows and of the skinned windows that follow a theme (Attune)."] =
+        "Aussehen unserer eigenen Fenster und der gestalteten Fenster, die einem Theme folgen (Attune).",
+    ["Look, language, packs and information."] = "Aussehen, Sprache, Pakete und Informationen.",
+    ["Make your own theme from any theme, change every color and share it as a code. The theme you edit is in use, so every window shows the change at once."] =
+        "Mach aus jedem Theme dein eigenes, ändere jede Farbe und teile es als Code. Das bearbeitete Theme ist aktiv, so zeigt jedes Fenster die Änderung sofort.",
+    ["Midnight"] = "Mitternacht",
+    ["Minimap button hidden. %s minimap shows it again."] =
+        "Minikartenknopf verborgen. %s minimap zeigt ihn wieder.",
+    ["Minimap button shown."] = "Minikarten-Knopf eingeblendet.",
+    ["Modern"] = "Modern",
+    ["Name"] = "Name",
+    ["New from the current theme"] = "Neu aus aktuellem Theme",
+    ["No"] = "Nein",
+    ["No own theme yet. \"New from the current theme\" copies the theme in use; then change any color."] =
+        "Noch kein eigenes Theme. „Neu aus aktuellem Theme“ kopiert das aktive Theme, danach kannst du jede Farbe ändern.",
+    ["Nord"] = "Nord",
+    ["not part of this installation"] = "nicht Teil dieser Installation",
+    ["off"] = "aus",
+    ["Open in EllesmereUI"] = "In EllesmereUI öffnen",
+    ["Open the options"] = "Optionen öffnen",
+    ["Opens the color picker. The chosen color becomes the accent."] =
+        "Öffnet die Farbauswahl. Die gewählte Farbe wird zum Akzent.",
+    ["Options"] = "Optionen",
+    ["Own color"] = "Eigene Farbe",
+    ["Own theme"] = "Eigenes Theme",
+    ["OWN THEMES"] = "EIGENE THEMES",
+    ["Parchment"] = "Pergament",
+    ["Paste a theme code here"] = "Theme-Code hier einfügen",
+    ["Pick any color"] = "Beliebige Farbe wählen",
+    ["Print the state to the chat"] = "Zustand im Chat ausgeben",
+    ["Reload now"] = "Jetzt neu laden",
+    ["Repeat within 10 seconds to confirm."] = "Zum Bestätigen innerhalb von 10 Sekunden wiederholen.",
+    ["RESET"] = "ZURÜCKSETZEN",
+    ["Reset look and language"] = "Aussehen und Sprache zurücksetzen",
+    ["Reset the look, language and window of %s to the defaults? The interface reloads."] =
+        "Aussehen, Sprache und Fenster von %s auf die Standardwerte zurücksetzen? Die Oberfläche wird neu geladen.",
+    ["Right-click: quick actions"] = "Rechtsklick: Schnellaktionen",
+    ["Rosé"] = "Rosé",
+    ["runs in BeautifulSkins"] = "läuft in BeautifulSkins",
+    ["Secondary text"] = "Nebentext",
+    ["Secondary text on the window"] = "Nebentext auf dem Fenster",
+    ["SHARE"] = "TEILEN",
+    ["Show the minimap button"] = "Minikarten-Knopf anzeigen",
+    ["SKIN PACKS"] = "SKIN-PAKETE",
+    ["Standard"] = "Standard",
+    ["Sure?"] = "Sicher?",
+    ["Takes effect after /reload."] = "Wirkt nach /reload.",
+    ["Text"] = "Text",
+    ["Text on buttons"] = "Text auf Knöpfen",
+    ["Text on the accent"] = "Text auf dem Akzent",
+    ["Text on the window"] = "Text auf dem Fenster",
+    ["Text should reach 4.5 : 1 to stay easy to read."] =
+        "Text sollte 4,5 : 1 erreichen, damit er gut lesbar bleibt.",
+    ["That is no theme code (it starts with BT1:)."] = "Das ist kein Theme-Code (er beginnt mit BT1:).",
+    ["The code is damaged or incomplete."] = "Der Code ist beschädigt oder unvollständig.",
+    ["The color picker is not available in this client."] =
+        "Die Farbauswahl ist in diesem Client nicht verfügbar.",
+    ["The EllesmereUI integration changes after a reload (/reload)."] =
+        "Die EllesmereUI-Einbindung ändert sich nach dem Neuladen (/reload).",
+    ["The EllesmereUI integration is off. Turn it on under General, then /reload."] =
+        "Die EllesmereUI-Einbindung ist aus. Unter Allgemein einschalten, dann /reload.",
+    ["The EllesmereUI section is not active (%s). Try /reload."] =
+        "Der EllesmereUI-Abschnitt ist nicht aktiv (%s). Versuche /reload.",
+    ["The EllesmereUI window cannot be opened in combat. %s options works."] =
+        "Das EllesmereUI-Fenster lässt sich im Kampf nicht öffnen. %s options funktioniert.",
+    ["the former addon is still active: switch it off and /reload"] =
+        "das frühere Addon ist noch aktiv: ausschalten und /reload",
+    ["The language changes after a reload (/reload)."] =
+        "Die Sprache ändert sich nach einem Neuladen (/reload).",
+    ["The quick brown fox jumps over the lazy dog. 0123456789"] =
+        "Zwölf Boxkämpfer jagen Viktor quer über den großen Sylter Deich. 0123456789",
+    ["Theme"] = "Theme",
+    ["Theme default"] = "Theme-Standard",
+    ["Theme editor"] = "Theme-Editor",
+    ["Theme, font, accent, language and window position back to the defaults, then the interface reloads. The options of the skins stay."] =
+        "Theme, Schrift, Akzent, Sprache und Fensterposition zurück auf Standard, danach lädt die Oberfläche neu. Die Optionen der Skins bleiben.",
+    ["too low"] = "zu niedrig",
+    ["Unknown command."] = "Unbekannter Befehl.",
+    ["Unofficial skins. Not affiliated with the authors of the skinned addons or of EllesmereUI."] =
+        "Inoffizielle Skins. Nicht verbunden mit den Autoren der gestalteten Addons oder von EllesmereUI.",
+    ["Used while the accent color is set to \"Theme default\"."] =
+        "Gilt, solange die Akzentfarbe auf „Theme-Standard“ steht.",
+    ["VERSIONS"] = "VERSIONEN",
+    ["waiting"] = "wartet",
+    ["Warning"] = "Warnung",
+    ["Warning on buttons"] = "Warnung auf Knöpfen",
+    ["Window"] = "Fenster",
+    ["Without EllesmereUI every option lives in this window. With EllesmereUI installed the same pages can also appear in its options window."] =
+        "Ohne EllesmereUI stehen alle Optionen in diesem Fenster. Mit EllesmereUI können dieselben Seiten auch in dessen Optionsfenster erscheinen.",
+    ["Yes"] = "Ja",
+}

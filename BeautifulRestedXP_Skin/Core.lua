@@ -1,8 +1,11 @@
--- EUI RestedXP Skin core: namespace, SavedVariables, defaults, events, refresh, slash command, compartment.
+-- RestedXP pack core (formerly the addon EUI RestedXP Skin): SavedVariables, defaults, events, refresh, look sources and
+-- the slash command. Look, language and the options window belong to the host (ns.host).
 local addonName, ns = ...
+local host = ns.host
+host.PackLocale(ns) -- the host chose the language before it loads packs
 local L = ns.L
 
-local PREFIX = "|cffd4a85a[" .. addonName .. "]|r "
+local DB_NAME = "BeautifulRestedXP_SkinDB"
 
 -- Missing keys are filled in recursively on ADDON_LOADED.
 ns.DEFAULTS = {
@@ -24,6 +27,8 @@ ns.DEFAULTS = {
     },
     nav = {
         source = "SPF", replaceSpfArrow = true, transports = true, stepEndOnly = false, hideRxpArrow = true,
+        nextMarker = false, -- the arrow aims at the tracked map marker (SPF's next bend), whatever the journey
+        rememberJourney = true, -- SPF's "Keep journeys after a reload", which lets the target switch see your own journey
         style = "CHEVRON", scale = 0.70, color = "ACCENT", customColor = nil, alpha = 1.0,
         showDistance = true, showETA = true, showName = true, unit = "m",
         hideCombat = false, locked = true, centerLock = false, point = { "TOP", "UIParent", "TOP", 0, -120 },
@@ -38,7 +43,6 @@ ns.DEFAULTS = {
 
 local frame = CreateFrame("Frame")
 local events = {}
-local pending = {}
 
 -- Secret values may not be compared, branched on or printed. Guard before use.
 function ns.IsSecret(value)
@@ -92,18 +96,6 @@ function ns.InInstance()
     return not (ns.CanAccess(kind) and kind == "none")
 end
 
-function ns.Say(text)
-    DEFAULT_CHAT_FRAME:AddMessage(PREFIX .. text, 0.95, 0.92, 0.86)
-end
-
--- Run an action now, or after combat ends if protected frames are involved.
-function ns.Queue(action)
-    if InCombatLockdown() then
-        pending[#pending + 1] = action
-    else
-        action()
-    end
-end
 
 local function DeepCopy(value)
     if type(value) ~= "table" then return value end
@@ -126,7 +118,7 @@ local function MergeDefaults(db, defaults)
     end
 end
 
--- "Reset to defaults": only EUIRestedXPSkinDB. The values we changed in RXP and SPF go back first (the remembered
+-- "Reset to defaults": only our SavedVariables. The values we changed in RXP and SPF go back first (the remembered
 -- originals), then our options are replaced by the defaults. RXP's own settings stay as they are.
 function ns.ResetToDefaults()
     if not ns.db then return end
@@ -136,6 +128,7 @@ function ns.ResetToDefaults()
     ns.db.nav = DeepCopy(ns.DEFAULTS.nav)
     ns.db.spfSkin = DeepCopy(ns.DEFAULTS.spfSkin)
     ns.db.rxpArrowBackup = nil
+    ns.db.rememberJourneySynced = nil -- the reset option is synced into SPF again
     ns.RefreshAll()
 end
 
@@ -196,22 +189,28 @@ local function IsChannel(v)
     return type(v) == "number" and v >= 0 and v <= 1
 end
 
--- Accent colour r, g, b (0-1): custom colour, else EUI's accent, else the fallback.
+-- Accent colour r, g, b (0-1): the guide's own colour, else the host's accent (EllesmereUI's, the theme's, the class
+-- colour or the one picked in General > Appearance), else the fallback.
 function ns.Accent()
     local guide = ns.db and ns.db.guide
     if guide and not guide.followAccent and type(guide.customColor) == "table" then
         local c = guide.customColor
         if IsChannel(c.r) and IsChannel(c.g) and IsChannel(c.b) then return c.r, c.g, c.b end
     end
+    local T = host.Theme.Get("user")
+    local a = T and T.accent
+    if a and IsChannel(a[1]) and IsChannel(a[2]) and IsChannel(a[3]) then return a[1], a[2], a[3] end
     local r, g, b = SkinCall("GetAccentColor")
     if IsChannel(r) and IsChannel(g) and IsChannel(b) then return r, g, b end
     local f = ns.FALLBACK_ACCENT
     return f[1], f[2], f[3]
 end
 
--- Font path and outline flags from EUI; own sizes are applied with SetFont(path, size, outline).
+-- Font path and outline flags: the host's font choice (EllesmereUI's font by default when it is loaded), else EUI's
+-- skin font, else the game's.
 function ns.Font()
-    local path, outline = SkinCall("GetFont")
+    local path, outline = host.Theme.FontPath()
+    if type(path) ~= "string" or path == "" then path, outline = SkinCall("GetFont") end
     if type(path) ~= "string" or path == "" then return ns.FALLBACK_FONT, "" end
     return path, type(outline) == "string" and outline or ""
 end
@@ -224,13 +223,14 @@ end
 -- Seconds after PLAYER_LOGIN in which EUI's skin callback may still be pending.
 local SKIN_GRACE = 3
 
--- is EUI's third-party skinning unavailable for us? There is no public getter.
--- Returns false, or true plus a reason: "MISSING" (EllesmereUIBlizzardSkin not loaded),
--- "MASTER" / "ADDON" (switched off in EUI's saved variables, read-only), "SILENT" (callback never ran).
+-- Is EUI's third-party skinning switched off for us? There is no public getter. Without EllesmereUI or without its
+-- Blizzard skin child the pack draws its own look (host accent and font), so only an explicit "off" in EllesmereUI counts.
+-- Returns false, or true plus a reason: "MASTER" / "ADDON" (switched off in EUI's saved variables, read-only),
+-- "SILENT" (EUI's skin callback never ran although the skin child is loaded).
 function ns.SkinningOff()
     if ns.skinRan then return false end
     local isLoaded = C_AddOns and C_AddOns.IsAddOnLoaded
-    if isLoaded and not isLoaded("EllesmereUIBlizzardSkin") then return true, "MISSING" end
+    if not (EllesmereUI and isLoaded and isLoaded("EllesmereUIBlizzardSkin")) then return false end
     if not ns.loginTime or GetTime() - ns.loginTime < SKIN_GRACE then return false end
     local eui = _G.EllesmereUIDB
     if type(eui) == "table" then
@@ -245,30 +245,45 @@ end
 -- Remembered at file load: had RXP already run OnInitialize (themes table present)?
 ns.rxpThemesAtLoad = RXP ~= nil and RXP.themes ~= nil
 
-function ns.OpenOptions(moduleKey, pageName)
-    if not (EllesmereUI and type(EllesmereUI.OpenPlugin) == "function") then
-        ns.Say(L["The EllesmereUI options are not available."])
-    elseif InCombatLockdown() then
-        ns.Say(L["The options cannot be opened in combat."])
-    elseif EllesmereUI.OpenPlugin(addonName, moduleKey, pageName) == false then
-        ns.Say(L["The options could not be opened."])
-    end
+-- Our pages in the host's options (its own window or the EllesmereUI section).
+function ns.OpenOptions(pageKey)
+    host.OpenOptions(pageKey or "rxp.general")
 end
 
 -- SavedVariables exist only from ADDON_LOADED on; never touch them at file scope.
-function events:ADDON_LOADED(loaded)
-    if loaded ~= addonName then return end
-    EUIRestedXPSkinDB = EUIRestedXPSkinDB or {}
-    MergeDefaults(EUIRestedXPSkinDB, ns.DEFAULTS)
-    ns.db = EUIRestedXPSkinDB
-    self:UnregisterEvent("ADDON_LOADED")
+-- This pack loads on demand from inside the host's ADDON_LOADED, so our own ADDON_LOADED is queued rather than
+-- delivered during that call, and the client may hand us PLAYER_LOGIN first (seen on the first start of the Forever
+-- release, 04.11.2026: ns.db was still false). The setup therefore runs from whichever event arrives first and does
+-- nothing the second time.
+local function Ready()
+    if ns.db then return end
+    local db = _G[DB_NAME]
+    if type(db) ~= "table" then
+        -- first start: take over the settings of the former addon EUI RestedXP Skin (same layout)
+        db = {}
+        local old = host.ImportedSettings("RestedXP")
+        if type(old) == "table" then
+            for key, value in pairs(old) do db[key] = value end
+            db.importedFrom = "EUI_RestedXP_Skin"
+        end
+    end
+    MergeDefaults(db, ns.DEFAULTS)
+    _G[DB_NAME] = db
+    ns.db = db
+    frame:UnregisterEvent("ADDON_LOADED")
     for i = 1, #loadedHooks do
         local ok, err = pcall(loadedHooks[i])
         if not ok then geterrorhandler()(err) end
     end
 end
 
+function events:ADDON_LOADED(loaded)
+    if loaded ~= addonName then return end
+    Ready()
+end
+
 function events:PLAYER_LOGIN()
+    Ready()
     ns.db.launches = ns.db.launches + 1
     ns.loggedIn = true
     ns.loginTime = GetTime()
@@ -278,25 +293,16 @@ function events:PLAYER_LOGIN()
     C_Timer.After(SKIN_GRACE + 0.5, ns.RefreshAll)
 end
 
-function events:PLAYER_REGEN_ENABLED()
-    local run = pending
-    pending = {}
-    for i = 1, #run do
-        local ok, err = pcall(run[i])
-        if not ok then geterrorhandler()(err) end
-    end
-end
-
 frame:SetScript("OnEvent", function(self, event, ...)
     local handler = events[event]
     if handler then handler(self, ...) end
 end)
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("PLAYER_LOGIN")
-frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 
-SLASH_EUIRESTEDXPSKIN1 = "/euirxp"
-SlashCmdList["EUIRESTEDXPSKIN"] = function(msg)
+SLASH_BEAUTIFULRESTEDXP1 = "/brxp"
+SLASH_BEAUTIFULRESTEDXP2 = "/euirxp"
+SlashCmdList["BEAUTIFULRESTEDXP"] = function(msg)
     local cmd, arg = (msg or ""):lower():match("^%s*(%S*)%s*(.-)%s*$") -- arg: the rest of the line ("guide set upcoming 2")
     if cmd == "" or cmd == "options" then
         ns.OpenOptions()
@@ -310,23 +316,32 @@ SlashCmdList["EUIRESTEDXPSKIN"] = function(msg)
         ns.GuideCommand(arg)
     elseif cmd == "spf" then
         ns.SPFSkinDebug()
+    elseif cmd == "target" then
+        ns.TargetCommand(arg)
     else
-        ns.Say(L["Usage: /euirxp [probe|nav|lock|unlock|guide|spf]"])
+        ns.Say(L["Usage: /brxp [probe|nav|lock|unlock|guide|spf|target [guide]]"])
     end
 end
 
--- Addon compartment callbacks must be real globals (named in the TOC).
-function EUIRestedXPSkin_OnCompartmentClick()
-    ns.OpenOptions()
-end
-
-function EUIRestedXPSkin_OnCompartmentEnter(_, owner)
-    GameTooltip:SetOwner(owner, "ANCHOR_LEFT")
-    GameTooltip:SetText(addonName, 1, 0.82, 0.45)
-    GameTooltip:AddLine(L["Click to open the options."], 1, 1, 1)
-    GameTooltip:Show()
-end
-
-function EUIRestedXPSkin_OnCompartmentLeave()
-    GameTooltip:Hide()
-end
+-- Registration with the host: options, status line, quick actions.
+host.RegisterPack(ns, {
+    key = "RestedXP",
+    title = "RestedXP",
+    modules = function() return ns.OptionModules() end,
+    status = function()
+        local off = ns.SkinningOff()
+        if off then return L["guide skin off in EllesmereUI"] end
+        return ns.db and ns.db.guide.enabled and L["guide window skinned"] or L["guide window skin off"]
+    end,
+    commands = function()
+        return { L["/brxp lock | unlock - lock or unlock the arrow"], L["/brxp target - switch the arrow target"] }
+    end,
+    actions = function()
+        local locked = ns.db and ns.db.nav.locked
+        return {
+            { text = locked and L["Unlock the RestedXP arrow"] or L["Lock the RestedXP arrow"],
+                fn = function() ns.SetArrowLocked(not locked) end },
+            { text = L["Reset the RestedXP arrow position"], fn = function() ns.ResetArrowPosition() end },
+        }
+    end,
+})

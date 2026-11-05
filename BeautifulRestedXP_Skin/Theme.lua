@@ -3,7 +3,7 @@
 local addonName, ns = ...
 local L = ns.L
 
-local THEME_NAME = "EUIRestedXPSkin"
+local THEME_NAME = "EUIRestedXPSkin" -- the former addon's name, kept: RestedXP stores the chosen theme by it
 local TEXTURE_PATH = "Interface/AddOns/RXPGuides/Textures/DarkMode/" -- RXP's own textures, none shipped here
 
 -- EUI PANEL_BG, kept as our own constant rather than read from EUI.
@@ -46,7 +46,7 @@ local function Build()
     local theme = {
         name = THEME_NAME,
         author = addonName, -- RegisterTheme refuses themes without name or author
-        displayName = "EllesmereUI (EUI RestedXP Skin)",
+        displayName = "BeautifulRestedXP",
         version = 2, -- lets RXP.v2:ConvertThemes convert again after a rebuild
         background = background,
         bottomFrameBG = bottom,

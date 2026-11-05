@@ -624,7 +624,7 @@ ns.RegisterRefresh(function()
     StartWatching()
 end)
 
--- /euirxp spf: what the skin found and whether it is on.
+-- /brxp spf: what the skin found and whether it is on.
 function ns.SPFSkinDebug()
     local c = Cfg() or {}
     local module, compass = _G[TRACKER_NAME], CompassFrame()
