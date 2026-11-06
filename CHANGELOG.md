@@ -1,5 +1,13 @@
 # Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
 
+## 0.11.3 (2026-11-06)
+
+- New: ShortestPathForever's journey and its markers follow the accent colour everywhere: the route and goal on the
+  minimap, the route, stop buttons and numbers on the world map, the boat and zeppelin lines and the glow of a hovered
+  dock, the flight master's tracked mark, and the compass and screen pins. Changing the accent repaints all of it at
+  once. Transport and flight master icons keep their look. Switch it off under Navigation > Map ("Route and markers in
+  the accent colour") to get ShortestPathForever's own colours back.
+
 ## 0.11.2 (2026-11-05)
 
 - Fix: with ShortestPathForever following a RestedXP guide, the target no longer switches on and off several times a

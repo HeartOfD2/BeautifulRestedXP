@@ -380,6 +380,10 @@ local function MapRows()
     return {
         Note(NO_SPF, function() return not spf() end),
         Header("MAP"),
+        Row("spfSkin", "minimapRoute", "toggle", "Route and markers in the accent colour", {
+            enabled = spf,
+            tip = "The route, its stops and its waypoint marks take the accent colour on the minimap, the world map, the compass and the screen, instead of one colour per way of travel, and so do the boat and zeppelin lines of a hovered dock. Transport and flight master icons keep their look. Off gives ShortestPathForever's own colours back.",
+        }),
         SpfRow("mapRoutes", "toggle", "Show routes on the map"),
         SpfRow("pins", "toggle", "Show map pins"),
         SpfRow("mapPinScale", "slider", "Pin size (%)", { min = 25, max = 200, step = 5 }),
