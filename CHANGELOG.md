@@ -1,5 +1,13 @@
 # Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
 
+## 0.11.4 (2026-11-06)
+
+- New: option "Show the BeautifulRestedXP arrow" (Navigation > Arrow), on by default. Switch it off when another addon
+  such as TomTom shows the way. GearQuest hunts then use GearQuest's own arrow.
+- ShortestPathForever's own arrow now stays invisible while this arrow is on, so you always see one arrow. "Show direction
+  arrow" in ShortestPathForever stays on, because it gives this arrow the bends of the route; switching this arrow off
+  puts your ShortestPathForever setting back. The option "Hide the ShortestPathForever arrow" is gone.
+
 ## 0.11.3 (2026-11-06)
 
 - New: ShortestPathForever's journey and its markers follow the accent colour everywhere: the route and goal on the
