@@ -1,5 +1,12 @@
 # Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
 
+## 0.11.5 (2026-11-07)
+
+- Fix: after you set your own waypoint (Shift-click on the map), the arrow pointed at the RestedXP target while the
+  distance and name were those of your waypoint. ShortestPathForever first gives back the waypoint that stood before
+  the guide's journey; the arrow now follows only waypoints ShortestPathForever set itself and otherwise points
+  straight at your target until the route's first bend is placed. This also applies with "Arrow to the next map marker".
+
 ## 0.11.4 (2026-11-06)
 
 - New: option "Show the BeautifulRestedXP arrow" (Navigation > Arrow), on by default. Switch it off when another addon
