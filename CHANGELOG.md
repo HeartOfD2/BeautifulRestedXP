@@ -1,5 +1,27 @@
 # Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
 
+## 0.11.7 (2026-11-08)
+
+- Fix: the RestedXP guide window no longer makes a steady stream of garbage that ended in stutters. RestedXP
+  updates its steps several times per tick, and the list of upcoming steps was drawn again each time; it now draws
+  only when a step it shows changes (its text, the progress, the mouse wheel, a step done). With the world map open,
+  the look for ShortestPathForever's map pins no longer goes through every pin of every addon four times a second.
+- ShortestPathForever: the route's next bend on the minimap is in the accent colour too. The game draws that waypoint
+  itself, so a marker of ours in the accent now sits over it (held on the minimap's rim when the bend is further
+  away, as the game does). Your own waypoints keep the game's look.
+- Fix: closing GearQuest's arrow cancels only its own hunt. A journey you started after it (a map click, /way, the
+  target switch) stays.
+- Fix: with Waypoint UI, the arrow follows its navigation only while Waypoint UI tracks it (only then does
+  ShortestPathForever hand its bends over). A pin of yours that Waypoint UI just holds is no longer taken for a bend.
+- Fix: a waypoint the game keeps hidden (restricted maps) is left alone instead of being read for the minimap marker.
+- Settings that ShortestPathForever adjusts when they are set (a slider's step) keep SPF's value, without a /reload
+  hint.
+- Less work in the background: the world map's pin watch runs only while the map is open, the minimap marker only
+  while the route's accent colour is on, and the look for ShortestPathForever's arrow, compass and screen pin only
+  during a journey (never without ShortestPathForever).
+- With Waypoint UI tracking the route's bends, the minimap marker and OpenMap's waypoint marker take the accent too
+  (the arrow, the minimap and OpenMap now share one check for "this waypoint is the route's bend").
+
 ## 0.11.6 (2026-11-07)
 
 - With Waypoint UI: while the BeautifulRestedXP arrow is on, Waypoint UI's "RestedXP support" is switched off (and
