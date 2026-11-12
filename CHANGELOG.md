@@ -1,5 +1,11 @@
 # Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
 
+## 0.11.8 (2026-11-12)
+
+- Fix: the white quest objectives at the edge of the screen (and the missing waypoint) after a RestedXP step
+  no longer stay. RestedXP pins the quest of the active step, ShortestPathForever read that as your own click and gave
+  up its waypoint; the guide's journey is now set again by itself (your own quest clicks stay yours).
+
 ## 0.11.7 (2026-11-08)
 
 - Fix: the RestedXP guide window no longer makes a steady stream of garbage that ended in stutters. RestedXP
