@@ -1,5 +1,16 @@
 # Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
 
+## 0.11.9 (2026-11-13)
+
+- Fix: on a RestedXP journey the arrow could point straight at the step's target and Waypoint UI named a "Map Pin"
+  of yours instead of the route's next bend. When RestedXP pins its quest, ShortestPathForever gave up its waypoint,
+  gave your old map pin back on the next step and, once Waypoint UI tracked that pin, wrote no bends until the target
+  moved again. The guide's bend now stays tracked when RestedXP pins its quest, so ShortestPathForever keeps writing it.
+- Waypoint UI: while the arrow is on, "Auto-Track Pin" (with "from Link") and "Use Waypoint UI Map Pins" are now
+  switched off too, like "RestedXP support" already was: they take the game's waypoint from ShortestPathForever's bends.
+  Switching the arrow off or resetting the settings gives your values back. "Auto-Track Pin" changes after a /reload.
+- `/brxp nav` shows ShortestPathForever's saved bend, who owns the journey and Waypoint UI's switches.
+
 ## 0.11.8 (2026-11-12)
 
 - Fix: the white quest objectives at the edge of the screen (and the missing waypoint) after a RestedXP step
