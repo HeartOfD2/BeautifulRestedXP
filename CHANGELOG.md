@@ -1,5 +1,16 @@
 # Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
 
+## 0.11.10 (2026-11-14)
+
+- Works with ShortestPathForever 1.37.1. Its numbered stop markers (now drawn from Forever Core) take the accent colour
+  again on the world map, the minimap and the compass.
+- Compass: the restyled compass keeps its look when ShortestPathForever repaints it on reaching or leaving a stop's
+  area; switched off, the compass gets ShortestPathForever's current colours back (gold, or green inside the area).
+- Distances in metres show the same number as ShortestPathForever's tracker, compass and arrow: like the game's
+  metric clients, ShortestPathForever (since 1.27.0) keeps the game's yards and only changes the unit word.
+- Theme editor: long names of own themes are shortened without splitting a character, so a name with umlauts no
+  longer ends in a broken character.
+
 ## 0.11.9 (2026-11-13)
 
 - Fix: on a RestedXP journey the arrow could point straight at the step's target and Waypoint UI named a "Map Pin"
