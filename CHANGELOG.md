@@ -1,5 +1,13 @@
 # Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
 
+## 0.11.11 (2026-11-14)
+
+- "Switch target" broke ShortestPathForever's guidance when the journey already led to that place: the route stayed
+  on the map, but its next bend and the arrow's aim were gone and further clicks changed nothing. The switch now
+  leaves ShortestPathForever's bend alone there and starts its guidance again when it had stopped or given way.
+- The arrow shows the distance to the bend it points at and the journey's time left, the same numbers as
+  ShortestPathForever's compass.
+
 ## 0.11.10 (2026-11-14)
 
 - Works with ShortestPathForever 1.37.1. Its numbered stop markers (now drawn from Forever Core) take the accent colour
