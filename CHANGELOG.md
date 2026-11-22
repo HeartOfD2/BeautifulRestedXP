@@ -1,5 +1,17 @@
 # Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
 
+## 0.11.12 (2026-11-22)
+
+- Works with ShortestPathForever 1.45.0. Its bronze goal pin (a journey that is planned but not guided) takes the
+  accent colour like the gold one, on the world map, the minimap, the compass and the screen.
+- Known limit: since ShortestPathForever 1.45.0 a RestedXP journey places no waypoint on its bends, so the arrow points
+  straight at the guide's target there. Your own journeys (Shift-click on the map) still follow every bend.
+- On the way to a goal on another continent (boat, zeppelin) the arrow no longer says "Arrived" when you come close to a
+  bend on the way.
+- "Switch target" to the place the journey already goes to: an old map pin of yours that ShortestPathForever gives back
+  no longer takes the place of the next bend.
+- /brxp nav names the same distance as the arrow (to the bend while ShortestPathForever leads, rounded down).
+
 ## 0.11.11 (2026-11-14)
 
 - "Switch target" broke ShortestPathForever's guidance when the journey already led to that place: the route stayed
