@@ -1,5 +1,10 @@
 # Changelog — BeautifulRestedXP (formerly EUI RestedXP Skin)
 
+## 0.11.13 (2026-11-24)
+
+- "Hide in instances" is now off by default, so the guide window stays visible in dungeons and in combat. Existing
+  settings are kept.
+
 ## 0.11.12 (2026-11-22)
 
 - Works with ShortestPathForever 1.45.0. Its bronze goal pin (a journey that is planned but not guided) takes the
